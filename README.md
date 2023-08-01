@@ -2,7 +2,6 @@
 
 A simple Java Swing GUI application for interacting with a GP booking system database, completed for Assessment 2 of module COMP5590 - Software Development at the University of Kent in Canterbury, Stage 2 Computer Science BSc.
 
-The database is named `cd586` and is hosted at `dragon.kent.ac.uk` under username `cd586` with password temporarily set to `nosani0`.
 
 __Deliverables__:
 For each week can be found in `./docs/deliverables` as they are added.
