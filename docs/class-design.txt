@@ -1,0 +1,223 @@
+CLASS DESIGN:
+
+Below will go the designs for the various classes as they're planned. Normal rules apply; you don't have to write details if they're obvious.
+
+Suggest organsing like:
+
+    +---------------------------------------------------------------------------------------+
+    | ExampleClass                                                                          |
+    +---------------------------------------------------------------------------------------+
+    | var1 - static, int    | exampleFunction(Str iAmAString) -> Str (input in upper case)  |
+    | var2 - final, Str     | anotherFunction(bool[] boolArray)                             |
+    |                       |    -> Int (how many of input true)                            |
+    | var3 - bool           | oneMoreFunction(int num)                                      |
+    +---------------------------------------------------------------------------------------+
+
+<--- BEGIN --->
+
+LoginFrame 
+-Creates a frame for the user to login with their details, provided they already have an account.
+-Creates new RegistrationFrame object on button press
++---------------------------------------------------------------------------------------+
+| LoginFrame extends JFrame         |                                                  	|
++---------------------------------------------------------------------------------------+
+| databaseManager - DBManager       | pub main(String[] args)                           |
+|									| LoginFrame()                                      |
+| 									|   	Setup frame                                 |
+| 									| priv addComponents(contentPane)                   |
+|									|		Setup components					        |
+| 							 	    | priv methods to make each of the components       |
++---------------------------------------------------------------------------------------+
+
+DBManager
+-Connects to the database and handles all interaction with it
++---------------------------------------------------------------------------------------------------+
+| DBManager                                                                          	            |
++---------------------------------------------------------------------------------------------------+
+| DATABASE_SERVER/USER/PASSWORD                     | DBManager()                                   |
+| PATIENT_REG_MSG                                   | pub login(email, pass) -> bool                |
+| DOCTOR_NEW_PATIENT_MSG                            | pub getDoctors() -> ResultSet                 |
+| FORENAME/SURNAME/EMAIL_LENGTH - final, Str, pub   | pub registerPatient(Strings) -> int (pid)     |
+| HASHED_PASS_LENGTH - final, Str, private          |   Takes tuple but finds pid                   |
+| connection - Connection, private                  | pub unregisterPatient(pid, pass)              |
+|                                                   | pub recordMessage(pid, did, msg) -> int (mid) |
+|                                                   | pub unrecordMessage(mid)                      |
+|                                                   | priv getMessages(id, Table) -> ResultSet      |
+|                                                   | pub getMessageStrings(id, Table) -> String[]  |
+|                                                   | priv getNewID(Table) -> int                   |
+|                                                   | pub closeConnection()                         |
+|                                                   | pub validateName(name, bool surname) -> bool  |
+|                                                   | pub checkPassword(password) -> bool           |
+|                                                   | priv getHash(input) -> String                 |
+|                                                   | pub validateEmail(email) -> bool              |
++---------------------------------------------------------------------------------------------------+
+| priv enum Table: Patient, Doctor, Message     |                                                   |
++-----------------------------------------------+                                                   |
+| idColumn - Str, priv  | Table(idColumn)       |                                                   |
+|                       | getIDColumn() -> Str  |                                                   |
++-----------------------------------------------+---------------------------------------------------+
+
+RegistrationFrame
+-Creates new frame for patient to enter their details and create a new account
+-patient enters details to create account
+-Validates entered details (validation methods in DBManager)
+-Pulls up a list of doctors so the patient can choose one
+-Closes itself after
++-----------------------------------------------------------------------------------------------+
+| RegistrationFrame extends JFrame              |                                               |
++-----------------------------------------------------------------------------------------------+
+| DATE_FORMAT - final, Str, priv                | RegistrationFrame(DBManager)                  |
+| databaseManager - final, DBManager            | priv addComponents(Container)                 |
+| doctors - ArrayList<DoctorSelection>, priv    | priv makeNewAccountButton(9 DataEntryAreas)   |
+|                                               | priv makeComboBox(T[]) -> JComboBox<T>        |
+|                                               | priv makeDisabilityField -> JTextArea         |
++-----------------------------------------------------------------------------------------------+
+| priv enum GenderSelection: Male, Female, Other, PreferNotToSay    |
++-------------------------------------------------------------------+
+| letter - priv, Char   | GenderSelection(letter)                   |
+|                       | @Override pub toString() -> Str           |
+|                       | pub getLetter() -> Char                   |
++-------------------------------------------------------------------+
+
+
+
+HomeFrame       
+-Creates a new frame once logged in
+-Redirects to multiple different frames on button press for each implemented feature e.g Create Appointment, View all Doctors
++---------------------------------------------------------------------------------------+
+| HomeFrame                                                                             |
++---------------------------------------------------------------------------------------+
+| c - priv, GridBagConstraints      | HomeFrame(int pid)                                |
+|                                   | priv addComponents(Container, GridBagConstraints) |
+|                                   | priv methods to make all components               |
+|                                   | messages() , amendAppointment(), createAppointment|
+|                                   | logout(), viewDoctors()                           |
++---------------------------------------------------------------------------------------+
+
+ViewDoctorsFrame
+-Brings up a list of all Doctors from the database
+-Allows the user to see the doctors details and to pick a new doctor
+-Confirmation message is then sent to both the patient and doctor
++---------------------------------------------------------------------------------------+
+| ChangeDoctorsFrame                                                                    |
++---------------------------------------------------------------------------------------+
+| databaseManager- DBManager   | ChangeDoctorsFrame(DBManager,  loggedInPID)            | 
+| loggedInPID - private,int    | makeComponent() for each componenent                   |
+|                              | addComponents()                                        |
+|                              |   -> actionPerformed()                                 |
+|                              |       -Overrides for component functions: home(),      |
+|                              |        changeDoctor, logout()                          | 
+|                              | confirm(); send confirmation message                   | 
+|                              | changeDoctor();                                        |
+|                              | checkDoctor();                                         |
+|                              | helpConstruct (String label, String warning)           |                                  |
++---------------------------------------------------------------------------------------+
+
+CreateAppointmentFrame
+-Brings up new window to create an appointment with the patients doctor
+-inputs of date and time
+-checks with the database to see if the doctor's available
+-if the slot is not available, the patient is warned, and must choose a new time
+- upon appointment creation, a confirmation message is sent to the doctor and patient
++---------------------------------------------------------------------------------------+
+| CreateAppointmentFrame                                                                |
++---------------------------------------------------------------------------------------+
+| JPanel, JLabel,              | CreateAppointmentFrame(int pid)                        |
+|                              | makeComponent() for each component                     |
+| JButton, JFrame              | addComponents()                                        |
+| databaseManager- DBManager   |   -> actionPerformed()                                 |
+| GridBagConstraints c         |       -Overrides for component functions: home(),      |
+|                              |        createAppointment, logout()                     |
+|                              | checkAvailable() ; checks if doctors available         |
+|                              | confirm() ; send confirmation message                  |
++---------------------------------------------------------------------------------------+
+
+AmendAppointmentFrame
+-Brings up new window to amend an existing appointment
+-window shows a list of all appointments the patient has, pulling from the database
+-upon appointment amended, a confirmation message is sent to the doctor and patient
++------------------------------------------------------------------------------------------+
+| AmendAppointmentFrame                                                                    |
++------------------------------------------------------------------------------------------+
+| JPanel, JLabel,              | AmendAppointmentFrame(int pid)                            |
+| JButton, JFrame              | addComponents()                                           |
+| databaseManager- DBManager   | makeComponents() : for each component to be made + placed |
+| GridBagConstraints c         |   -> actionPerformed()                                    |
+|                              | getAppointments() ; returns patient appointments          |
+|                              | changeAppointment() ; amends database appointment         |
+|                              | confirm(); sends confirmation message                     |    
++------------------------------------------------------------------------------------------+
+
+BookedAppointmentsFrame
+-Brings up new window to show all booked appointments
++----------------------------------------------------------------------------------------------------+
+| BookedAppointmentsFrame                                                                            |
++----------------------------------------------------------------------------------------------------+
+| databaseManager - private, final, DBManager | BookedAppointmentsFrame(databaseManager, loggedInID) |
+| loggedInID - private, final, int            | getAppointmentsTable()                               |
+|                                             |       -> return JTable                               |
++----------------------------------------------------------------------------------------------------+
+
+DataEntryArea
+-abstract class for data entry fields
+-gets contents of field and checks if valid
++-----------------------------------------------------------------------------+
+| DataEntryArea                                                               |
++-----------------------------------------------------------------------------+
+| field - private, final, JComponent | DataEntryArea(field, label, warning)   |
+| warning - private, JPanel          | helpConstruct()                        |
+|                                    | inputValid(input)                      |
+|                                    | validateInput()                        |
+|                                    |     -> return bool                     |
+|                                    | getContents()                          |
+|                                    |     -> return Object                   |
++-----------------------------------------------------------------------------+
+
+DoctorSelection
+-selection of a doctor from the database
++-------------------------------------------------------------------------------+
+| priv class DoctorSelection                                                    |
++-------------------------------------------------------------------------------+
+| forename, surname - priv, Str | DoctorSelection(did, forename, surname)       |
+| did - priv, int               | pub getID() -> int                            |
+|                               | @Override pub toString() -> Str               |
++-------------------------------------------------------------------------------+
+
+Util
+-Utility class
++---------------------------------------------------------------------------------------------------------+
+| Util                                                                                                    |
++---------------------------------------------------------------------------------------------------------+
+| DATABASE_SERVER - static, final, String        | ComponentFactory                                       |
+| DATABASE_USER - static, final, String          | makeComponents()                                       |
+| DATABASE_PASSWORD - static, final, String      | getComponentIndex()                                    |
+| MSGs - static, final, String                   | getHash() throws NoSuchAlgorithmException              |
+| DATE_FORMAT - static, final, SimpleDateFormat  | validEmail(), checkPasswordStrength(), validateName()  |
+| TIME_FORMAT - static, final, SimpleDateFormat  |    -> return bool                                      |
+| FORENAME_LENGTH - static, final, int           |                                                        |
+| SURNAME_LENGTH - static, final, int            |                                                        |
+| EMAIL_LENGTH - static, final, int              |                                                        |
+| fonts - static, final, Font                    |                                                        |
++---------------------------------------------------------------------------------------------------------+
+
+Logging
+-Logs all access from a user
++--------------------------------------------------------------------------+
+| Logging                                                                  |
++--------------------------------------------------------------------------+
+| loggedInID - private, final, int    | logging()                          |
+| databaseManager - DBManager         | getFunctionality()                 |
+|                                     |    - what was accessed             |
+|                                     | getTime()                          |
+|                                     |    ->return SimpleDateFormat       |
++--------------------------------------------------------------------------+
+
+ViewDoctorsSummaries
+-Brings up new window to show doctor summaries
++----------------------------------------------------------------------------------------------------+
+| ViewDoctorsSummaries                                                                               |
++----------------------------------------------------------------------------------------------------+
+| databaseManager - private, final, DBManager | ViewDoctorsSummaries(databaseManager, loggedInID)    |
+| loggedInID - private, final, int            | getDoctorsTable() - getDoctors()                     |
+|                                             |       -> return JTable                               |
++----------------------------------------------------------------------------------------------------+

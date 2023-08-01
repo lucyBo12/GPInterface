@@ -1,0 +1,73 @@
+TEST DESIGN:
+
+Below will go designs for the tests as they're planned. Suggest organising like:
+
+- ClassName
+    - functionName
+        - description of one tests
+    - otherFunction
+        - description of another test
+        - you get the idea
+
+<--- BEGIN --->
+
+-Remote database (not a class - tests for the SQL server)
+    -Test to ensure the database can be connected to
+    -Test to ensure the test doctor for the registration test is preregistered
+
+-DBManager
+    -DBManager.login
+        -Test to ensure that a valid account can login. A preregistered valid login is used to ensure the details entered match those within the
+        database and allow the user to sign in
+    -DBManager.login
+        -Test to ensure that a user that enters the wrong password can't login when attempting to use an email address stored within 
+        the database
+    -DBManager.login
+        -Test to ensure that a user that doesn't exist can't sign in. Uses an invalid login that doesn't exist within the database
+    -DBManager.registerPatient                               
+        -Test to create a new account. A valid login is created using valid credentials and the legged into to confirm that the creation
+        of a new account is possible
+    -DBManager.registerPatient
+        -Test to create a new account using invalid information, such as a non-valid email format string withtin the email box
+         and a passsword that doesn't adhere to the given security requirements
+    -DBManager.recordMessage
+        -Test recording of a message on the system
+    -DBManager.validateName
+        -Test validation of valid name
+    -DBManager.validateName
+        -Test validation of invalid name
+    -DBManager.validateEmail
+        -Test validation of valid email
+    -DBManager.validateEmail
+        -Test validation of invalid email
+    -DBManager.checkPassword
+        -Test check of secure password
+    -DBManager.checkPassword
+        -Test check of insecure password
+
+-ViewDoctorsFrame
+    -ViewDoctorsFrame.changeDoctor
+        -Test to ensure that the user can change their chosen doctor within the allowed timeframe
+    -ViewDoctorsFrame.changeDoctor
+        -Test to ensure that the confirmation message is sent out to both patient and doctor when the doctor 
+        -is changed 
+
+-AmendAppointmentFrame
+    -AmendAppointmentFrame.getAppointments
+        -Test to ensure valid appointments are recieved by the user when fetched
+    -AmendAppointmentFrame.changeAppointments
+        -Test to ensure the database is updated when the appointments are ammended 
+    -AmendAppointmentFrame.confirm
+        -Test to ensure confirmation message is given when appointment ammended
+    -AmendAppointmentFrame.confirm
+        -Test to ensure confirmation message isn't sent out when the user goes to ammend their appointment 
+        -but changes their mind
+
+-CreateAppointmentFrame
+    -CreateAppointmentFrame.checkAvailable
+        -Test to ensure that the program is displaying a valid choice of available doctors
+    -CreateAppointmentFrame.confirm
+        -Test to ensure confirmation message is given when appointment booked
+    -CreateAppointmentFrame.confirm
+        -Test to ensure confirmation message isn't sent out when the user goes to book their appointment 
+        -but changes their mind

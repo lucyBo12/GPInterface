@@ -1,0 +1,97 @@
+DATABASE EXAMPLES:
+
+Below will go SQL queries to instantiate some examples of the designed classes.
+
+Tests should generally be run after one of these has been used to set up the database. Suggest organising like:
+
+    Add some patients:
+
+    QUERY STUFF
+
+    Add some doctors:
+
+    DIFFERENT QUERY STUFF
+
+<--- BEGIN --->
+
+Set up tables:
+
+CREATE TABLE Doctor (
+    did INT PRIMARY KEY,
+    forename VARCHAR(20) NOT NULL,
+    surname VARCHAR(40) NOT NULL,
+    phoneNumber VARCHAR(15) NOT NULL
+);
+
+CREATE TABLE Patient (
+    pid INT PRIMARY KEY,
+    email VARCHAR(40) UNIQUE NOT NULL,
+    forename VARCHAR(20) NOT NULL,
+    surname VARCHAR(40) NOT NULL,
+    dob DATE NOT NULL,
+    gender CHAR(1),
+    disabilities TEXT,
+    doctor INT NOT NULL,
+    FOREIGN KEY (doctor) REFERENCES Doctor(did),
+    CONSTRAINT genderEnum CHECK (gender IN ('M', 'F', 'O'))
+);
+
+CREATE TABLE Login (
+    pid INT PRIMARY KEY,
+    hashed_pass CHAR(64) NOT NULL,
+    FOREIGN KEY (pid) REFERENCES Patient(pid) ON DELETE CASCADE
+);
+
+CREATE TABLE Booking (
+    bid INT PRIMARY KEY,
+    reason TINYTEXT NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    patient INT NOT NULL,
+    doctor INT NOT NULL,
+    CONSTRAINT doubleBooking UNIQUE (date, patient, doctor),
+    FOREIGN KEY (patient) REFERENCES Patient(pid) ON DELETE CASCADE,
+    FOREIGN KEY (doctor) REFERENCES Doctor(did)
+);
+
+CREATE TABLE Message (
+    mid INT PRIMARY KEY,
+    datetime DATETIME NOT NULL,
+    contains TEXT NOT NULL,
+    pid INT,
+    did INT,
+    FOREIGN KEY (pid) REFERENCES Patient(pid) ON DELETE CASCADE,
+    FOREIGN KEY (did) REFERENCES Doctor(did),
+    CONSTRAINT recipient CHECK (pid IS NOT NULL OR did IS NOT NULL)
+);
+
+CREATE TABLE PatientLog (
+    lid INT PRIMARY KEY,
+    datetime DATETIME NOT NULL NOT NULL,
+    contains TEXT NOT NULL
+);
+
+Add doctors:
+
+INSERT INTO Doctor(did, forename, surname, phoneNumber) VALUES (0, 'John', 'Doe', '07842145688');
+INSERT INTO Doctor(did, forename, surname, phoneNumber) VALUES (1, 'Edgar', 'Allen Poe', '07221535498');
+
+Add booking:
+
+INSERT INTO Booking(bid, reason, date, time, patient, doctor) VALUES (0, 'reason', '2022-03-31', '14:00:00', 0, 1);
+
+Reset all tables:
+
+DELETE FROM Booking;
+DELETE FROM Message;
+DELETE FROM Login;
+DELETE FROM Patient;
+DELETE FROM Doctor;
+
+Drop all tables (use with caution):
+
+DROP TABLE Booking;
+DROP TABLE Message;
+DROP TABLE Login;
+DROP TABLE Patient;
+DROP TABLE Doctor;
